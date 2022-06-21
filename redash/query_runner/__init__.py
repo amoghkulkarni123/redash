@@ -123,6 +123,7 @@ class BaseQueryRunner(object):
     limit_keywords = [ "LIMIT", "OFFSET"]
 
     def __init__(self, configuration):
+        logger.info(f"Druid 8 basequeryrunner configuration: {configuration}")
         self.syntax = "sql"
         self.configuration = configuration
 

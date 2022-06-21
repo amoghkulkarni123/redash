@@ -1,0 +1,7 @@
+pip install -U "prefect>=2.0b"
+prefect work-queue create -t local
+prefect work-queue ls
+prefect agent start [OPTIONS] WORK_QUEUE_ID
+
+prefect deployment create redash/prefect-orion/flows/prefect-deployment-spec-mongodb.py
+

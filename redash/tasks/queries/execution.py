@@ -30,6 +30,7 @@ def _unlock(query_hash, data_source_id):
 def enqueue_query(
     query, data_source, user_id, is_api_key=False, scheduled_query=None, metadata={}
 ):
+    logger.info("Druid 3.1 enqueue_query:")
     query_hash = gen_query_hash(query)
     logger.info("Inserting job for %s with metadata=%s", query_hash, metadata)
     try_count = 0
@@ -103,6 +104,8 @@ def enqueue_query(
                 if not scheduled_query:
                     enqueue_kwargs["result_ttl"] = settings.JOB_EXPIRY_TIME
 
+                logger.info(f"Druid 3.2 enqueue_query: {query}, {data_source.id}, {metadata}, {enqueue_kwargs}")
+
                 job = queue.enqueue(
                     execute_query, query, data_source.id, metadata, **enqueue_kwargs
                 )
@@ -150,9 +153,12 @@ def _resolve_user(user_id, is_api_key, query_id):
 
 
 class QueryExecutor(object):
+
     def __init__(
         self, query, data_source_id, user_id, is_api_key, metadata, is_scheduled_query
     ):
+        logger.info(f"Druid 5.1 QueryExecutor: {query}, {data_source_id}, {user_id}, {is_api_key}, {metadata}, {is_scheduled_query}")
+
         self.job = get_current_job()
         self.query = query
         self.data_source_id = data_source_id
@@ -183,6 +189,8 @@ class QueryExecutor(object):
 
         query_runner = self.data_source.query_runner
         annotated_query = self._annotate_query(query_runner)
+        logger.info(
+            f"Druid 5.2 QueryExecutor.run: {self.data_source} {query_runner}, {annotated_query}")
 
         try:
             data, error = query_runner.run_query(annotated_query, self.user)
@@ -220,6 +228,8 @@ class QueryExecutor(object):
                 self.query_model.skip_updated_at = True
                 models.db.session.add(self.query_model)
 
+            logger.info(
+                f"Druid 6.1 QueryResult store in Postgres: {data}")
             query_result = models.QueryResult.store_result(
                 self.data_source.org_id,
                 self.data_source,
@@ -240,6 +250,9 @@ class QueryExecutor(object):
 
             result = query_result.id
             models.db.session.commit()
+
+
+
             return result
 
     def _annotate_query(self, query_runner):
@@ -278,6 +291,7 @@ def execute_query(
     scheduled_query_id=None,
     is_api_key=False,
 ):
+    logger.info(f"Druid 4 execute_query: {query}, {data_source_id}, {metadata}, {metadata}, {user_id}, {scheduled_query_id}, {is_api_key}")
     try:
         return QueryExecutor(
             query,

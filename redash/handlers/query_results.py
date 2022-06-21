@@ -63,6 +63,7 @@ error_messages = {
 def run_query(
     query, parameters, data_source, query_id, should_apply_auto_limit, max_age=0
 ):
+    logging.info(f"Druid1 run_query: {query}, {parameters}, {data_source}, {query_id}")
     if data_source.paused:
         if data_source.pause_reason:
             message = "{} is paused ({}). Please try later.".format(
@@ -113,6 +114,7 @@ def run_query(
             )
         }
     else:
+        logging.info(f"Druid 1.1 run_query: {query_text}, {data_source}, {current_user}")
         job = enqueue_query(
             query_text,
             data_source,
@@ -125,6 +127,7 @@ def run_query(
                 "query_id": query_id,
             },
         )
+        logging.info(f"Druid 1.2 query_results 1 job: {job}")
         return serialize_job(job)
 
 
@@ -302,6 +305,7 @@ class QueryResultResource(BaseResource):
         if has_access(
             query, self.current_user, allow_executing_with_view_only_permissions
         ):
+            logging.info(f"Druid 0 /api/queries/<query_id>/results, {query}, {query_id}, {parameter_values}")
             return run_query(
                 query.parameterized,
                 parameter_values,
@@ -310,6 +314,7 @@ class QueryResultResource(BaseResource):
                 should_apply_auto_limit,
                 max_age,
             )
+
         else:
             if not query.parameterized.is_safe:
                 if current_user.is_api_user():

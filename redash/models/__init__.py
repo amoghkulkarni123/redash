@@ -382,6 +382,8 @@ class QueryResult(db.Model, QueryResultPersistence, BelongsToOrgMixin):
     def store_result(
         cls, org, data_source, query_hash, query, data, run_time, retrieved_at
     ):
+        logger.info(
+            f"Druid 6.2 QueryResult store in Postgres: {org}, {data_source}, {query_hash}, {query}, {data}, {run_time}, {retrieved_at}")
         query_result = cls(
             org_id=org,
             query_hash=query_hash,
