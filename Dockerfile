@@ -93,8 +93,12 @@ RUN if [ "x$skip_ds_deps" = "x" ] ; then pip install -r requirements_all_ds.txt 
 COPY requirements_bundles.txt requirements_dev.txt ./
 RUN if [ "x$skip_dev_deps" = "x" ] ; then pip install -r requirements_dev.txt ; fi
 
+RUN pip install -U "prefect>=2.0b"
+
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
+
+
 
 COPY . /app
 COPY --from=frontend-builder /frontend/client/dist /app/client/dist

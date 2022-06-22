@@ -1,5 +1,4 @@
-from prefect import flow, logging, task
-from redash import models
+from prefect import flow, task
 from redash.tasks.queries.execution import QueryExecutor
 
 
